@@ -25,6 +25,7 @@ events = []
 plates = []
 
 for item in raw_data:
+    event_id = item.get("id")
     # Event-level data
     event = {
         "event_id": item.get("event_id"),
@@ -39,14 +40,14 @@ for item in raw_data:
     # Plate-level data (can be multiple per event)
     for plate in item.get("plates", []):
         plates.append({
-            "event_id": item.get("event_id"),
+            "event_id": event_id,
             "plate_text": plate.get("ocr_text"),
             "is_hsrp": plate.get("is_hsrp"),
             "hsrp_confidence": plate.get("hsrp_confidence"),
             "ocr_confidence": plate.get("ocr_confidence"),
-            "bbox": plate.get("bbox"),
             "created_at": item.get("created_at"),
         })
+
 
 events_df = pd.DataFrame(events)
 plates_df = pd.DataFrame(plates)

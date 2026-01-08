@@ -5,7 +5,7 @@ from backend.core.rules import helmet_violation, hsrp_violation
 from backend.services.cropper import crop_plates
 from backend.services.storage import persist_pipeline_result
 
-def run_pipeline(image, image_path=None):
+def run_pipeline(image, image_path=None, force_save = False):
 
     helmet_res = helmet_model.predict(image)
     plate_bboxes = plate_model.predict(image)
@@ -54,7 +54,7 @@ def run_pipeline(image, image_path=None):
 
     result["plates"] = plates
 
-    if result["helmet_violation"] or any(p["hsrp_violation"] for p in plates):
+    if force_save or result["helmet_violation"] or any(p["hsrp_violation"] for p in plates):
         persist_pipeline_result(
             {
                 "helmet_violation": result["helmet_violation"],

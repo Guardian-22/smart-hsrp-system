@@ -49,11 +49,14 @@ def fetch_violations():
     except Exception:
         return []
 
-def save_record(payload: dict):
+def save_record(payload: dict, force_save: bool = False):
     try:
         resp = requests.post(
             f"{BACKEND_URL}/save",
-            json=payload,
+            json={
+                **payload,
+                "force_save": force_save
+            },
             timeout=TIMEOUT
         )
 
@@ -73,4 +76,5 @@ def save_record(payload: dict):
 
     except Exception as e:
         return {"error": str(e)}
+
 
