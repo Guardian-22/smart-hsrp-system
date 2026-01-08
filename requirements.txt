@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+streamlit
+opencv-python
+numpy
+torch
+ultralytics
+paddleocr
+paddlepaddle
+pillow
+sqlalchemy
+python-multipart
+requests
+pydantic-settings
