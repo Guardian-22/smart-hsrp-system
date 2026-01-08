@@ -46,7 +46,9 @@ SMART_HSRP/
 ## 🧰 Tech Stack
 
 **Language**: Python
+
 **Frontend**: Streamlit
+
 **Backend**: FastAPI
 
 ### AI / ML
