@@ -4,8 +4,6 @@ import cv2
 from backend.core.pipeline import run_pipeline
 from backend.db.database import SessionLocal
 from sqlalchemy import text
-from fastapi.encoders import jsonable_encoder
-from backend.utils.converters import make_json_serializable
 from backend.core.pipeline import persist_pipeline_result
 
 router = APIRouter()
@@ -96,7 +94,7 @@ async def save_record(payload: dict):
     if not event or plates is None:
         raise HTTPException(status_code=400, detail="Invalid payload")
 
-    persist_pipeline_result(event, plates)
+    persist_pipeline_result(event, plates)  # Here we are geting double plate output 
 
     return {"status": "saved"}
 

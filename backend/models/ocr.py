@@ -1,14 +1,17 @@
 from paddleocr import PaddleOCR
 import numpy as np
+import cv2
 
 class PlateOCR:
     def __init__(self):
-        # Minimal init for maximum compatibility
-        self.ocr_engine = PaddleOCR(lang="en")
+        self.ocr_engine = PaddleOCR(
+            lang="en",
+            use_angle_cls=True
+        )
 
     def predict(self, plate_image: np.ndarray):
         """
-        Safe OCR output:
+        Returns:
         {
             "text": str,
             "confidence": float
@@ -18,55 +21,34 @@ class PlateOCR:
         if plate_image is None or plate_image.size == 0:
             return {"text": "", "confidence": 0.0}
 
+        # --- Preprocessing (same as isolated test) ---
+        gray = cv2.cvtColor(plate_image, cv2.COLOR_BGR2GRAY)
+        gray = cv2.equalizeHist(gray)
+        gray = cv2.bilateralFilter(gray, 9, 75, 75)
+        plate_image = cv2.cvtColor(gray, cv2.COLOR_GRAY2BGR)
+
         try:
-            plate_image = np.ascontiguousarray(plate_image, dtype=np.uint8)
-            results = self.ocr_engine.ocr(plate_image)
-        except Exception:
-            # OCR failure should NEVER crash pipeline
+            results = self.ocr_engine.predict(plate_image)
+        except Exception as e:
+            print("OCR ERROR:", e)
             return {"text": "", "confidence": 0.0}
 
-        if not results or not results[0]:
+        if not results or results[0] is None:
             return {"text": "", "confidence": 0.0}
 
-        texts = []
-        confidences = []
+        result = results[0]
 
-        for line in results[0]:
-            # CASE 1: [box, (text, conf)]
-            if (
-                isinstance(line, (list, tuple))
-                and len(line) == 2
-                and isinstance(line[1], (list, tuple))
-                and len(line[1]) == 2
-            ):
-                text = str(line[1][0])
-                conf = float(line[1][1])
+        texts = result.get("rec_texts", [])
+        scores = result.get("rec_scores", [])
 
-            # CASE 2: [box, text]
-            elif (
-                isinstance(line, (list, tuple))
-                and len(line) == 2
-                and isinstance(line[1], str)
-            ):
-                text = line[1]
-                conf = 0.6  # default confidence
-
-            # CASE 3: raw string
-            elif isinstance(line, str):
-                text = line
-                conf = 0.5
-
-            else:
-                continue
-
-            if text.strip():
-                texts.append(text.strip())
-                confidences.append(conf)
-
-        if not texts:
+        if not texts or not scores:
             return {"text": "", "confidence": 0.0}
+
+        # Clean & merge text
+        final_text = "".join(t.replace(" ", "").upper() for t in texts)
+        avg_conf = sum(scores) / len(scores)
 
         return {
-            "text": " ".join(texts),
-            "confidence": sum(confidences) / len(confidences),
+            "text": final_text,
+            "confidence": round(float(avg_conf), 4)
         }
