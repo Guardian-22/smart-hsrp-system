@@ -12,11 +12,13 @@ class Settings(BaseSettings):
     HELMET_MODEL_PATH: str
     PLATE_MODEL_PATH: str
     HSRP_MODEL_PATH: str
+    VEHICLE_MODEL_PATH: str
 
     # --- Business Rules ---
     HELMET_CONF_THRESHOLD: float
     HSRP_CONF_THRESHOLD: float = 0.5
     OCR_CONF_THRESHOLD: float 
+    VEHICLE_CONF_THRESHOLD: float
 
     # --- Database & Storage ---
     DATABASE_URL: str

@@ -12,3 +12,5 @@ sqlalchemy
 python-multipart
 requests
 pydantic-settings
+pytest
+deep-sort-realtime
