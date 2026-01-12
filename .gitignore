@@ -2,4 +2,3 @@
 weights/
 __pycache__/
 .venv
-__init__.py
