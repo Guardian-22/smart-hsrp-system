@@ -1,7 +1,7 @@
 import cv2
 
 from backend.services.video_reader import read_video
-from backend.services.fps_controller import TimeBasedFPSController
+from backend.utils.fps_controller import TimeBasedFPSController
 from backend.services.vehicle_tracker import VehicleTracker
 from backend.services.cropper import crop_rois
 
@@ -65,9 +65,16 @@ def process_video(video_path, target_fps=8):
                 force_save=False
             )
 
-            results.setdefault(track_id, []).append({
-                "frame_id": frame_id,
-                "output": output
+            results.setdefault(track_id, {
+                "track_id": track_id,
+                "events": []
             })
+
+            results[track_id]["events"].append({
+                "frame_id": frame_id,
+                "source_ref": f"{video_path}:frame_{frame_id}:track_{track_id}",
+                "pipeline_output": output
+            })
+
 
     return results
